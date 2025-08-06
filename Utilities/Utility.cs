@@ -2,18 +2,64 @@
 {
     public class Utility
     {
-        public void PrintHeader()
+        public (double FirstNumber, double SecondNumber) GetTwoNumbers()
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("╔════════════════════════════════════════╗");
-            Console.WriteLine("║          CALCULATOR APP v1.0          ║");
-            Console.WriteLine("║         Professional Edition           ║");
-            Console.WriteLine("╚════════════════════════════════════════╝");
-            Console.WriteLine();
-            Console.ResetColor();
+            double first = GetSingleNumber("first");
+            double second = GetSingleNumber("second");
+            return (first, second);
         }
 
-        public double GetNumberInput(string position) 
+        public char GetOperatorChoice()
+        {
+            while (true)
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("AVAILABLE OPERATIONS:");
+                Console.WriteLine("────────────────────");
+                Console.WriteLine();
+
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine("   [A] + Addition");
+                Console.WriteLine("   [S] - Subtraction");
+                Console.WriteLine("   [M] * Multiplication");
+                Console.WriteLine("   [D] / Division");
+                Console.WriteLine("   [E] X Exit Program");
+                Console.WriteLine("   [H] View History");
+                Console.WriteLine("   [X] Clear History");
+                Console.WriteLine();
+
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write(">> Select your choice: ");
+                Console.ForegroundColor = ConsoleColor.Green;
+
+                string? input = Console.ReadLine()?.ToUpper();
+                Console.WriteLine();
+                Console.ResetColor();
+
+                if (string.IsNullOrEmpty(input))
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Error: Please enter a choice.");
+                    Console.ResetColor();
+                    Console.WriteLine();
+                    continue;
+                }
+
+                char choice = input[0];
+
+                if ("ASMDHX".Contains(choice) || choice == 'E')
+                {
+                    return choice;
+                }
+
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error: Unrecognised input. Please choose A, S, M, or D.");
+                Console.ResetColor();
+                Console.WriteLine();
+            }
+        }
+
+        private double GetSingleNumber(string position)
         {
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write($">> Type a {position} number, and then press Enter: ");
@@ -35,7 +81,9 @@
             Console.WriteLine($"   [✓] You entered: {cleanNumber}");
             Console.WriteLine();
             Console.ResetColor();
-            return cleanNumber; 
+            return cleanNumber;
         }
+
+
     }
 }

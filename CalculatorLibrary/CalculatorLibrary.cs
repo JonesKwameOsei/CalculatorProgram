@@ -6,6 +6,7 @@ namespace CalculatorLibrary
 
     public class Calculator
     {
+        public int usageCount = 0;
         JsonWriter writer;
 
         // Add a constructor to write game log to files
@@ -20,9 +21,9 @@ namespace CalculatorLibrary
             writer.WriteStartArray();
         }
 
-        public double DoOperation(double num1, double num2, string op)
+        public double DoOperation(double num1, double num2, char op)
         {
-            double result = double.NaN; // Default value is "not-a-number" if an operation, such as division, could result in an error.
+            double result = double.NaN;
 
             writer.WriteStartObject();
             writer.WritePropertyName("Operand1");
@@ -32,21 +33,21 @@ namespace CalculatorLibrary
             writer.WritePropertyName("Operation");
 
             // Use a switch statement to do the math.
-            switch (op)
+            switch (char.ToLower(op))
             {
-                case "a":
+                case 'a':
                     result = num1 + num2;
                     writer.WriteValue("Add");
                     break;
-                case "s":
+                case 's':
                     result = num1 - num2;
                     writer.WriteValue("Subtract");
                     break;
-                case "m":
+                case 'm':
                     result = num1 * num2;
                     writer.WriteValue("Multiply");
                     break;
-                case "d":
+                case 'd':
                     // Ask the user to enter a non-zero divisor.
                     if (num2 != 0)
                     {
@@ -54,14 +55,20 @@ namespace CalculatorLibrary
                     }
                     writer.WriteValue("Divide");
                     break;
+                case 'e':
+                    // Exit operation, no calculation performed.
+                    writer.WriteValue("Exit");
+                    break;
                 // Return text for an incorrect option entry.
                 default:
+                    writer.WriteValue("Invalid Operation");
                     break;
             }
             writer.WritePropertyName("Result");
             writer.WriteValue(result);
             writer.WriteEndObject();
 
+            usageCount++;
             return result;
         }
 

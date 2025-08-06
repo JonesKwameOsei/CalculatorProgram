@@ -1,5 +1,5 @@
 ﻿using CalculatorLibrary;
-using System.Text.RegularExpressions;
+using CalculatorResults;
 using Utilities;
 
 namespace CalculatorProgram;
@@ -7,57 +7,83 @@ class Program
 {
     static void Main(string[] args)
     {
-        bool endApp = false;
-
-        Calculator calculator = new Calculator();
+        ResultPrinter resultPrinter = new ResultPrinter();
         Utility utility = new Utility();
-        utility.PrintHeader();
+        Calculator calculator = new Calculator();
+        Helpers helpers = new Helpers();
 
-        while (!endApp)
+        helpers.ClearConsoleColors();
+        helpers.PrintHeader();
+
+        List<string> history = [];
+
+        Boolean keepRunning = true;
+        while (keepRunning)
         {
-            double cleanNum1 = utility.GetNumberInput("first");
-            double cleanNum2 = utility.GetNumberInput("second");
-            double result = 0;
+            var (cleanNum1, cleanNum2) = utility.GetTwoNumbers();
+            char op = utility.GetOperatorChoice();
 
-            // Ask the user to choose an operator.
-            Console.WriteLine("Choose an operator from the following list:");
-            Console.WriteLine("\ta - Add");
-            Console.WriteLine("\ts - Subtract");
-            Console.WriteLine("\tm - Multiply");
-            Console.WriteLine("\td - Divide");
-            Console.Write("Your option? ");
-
-            string? op = Console.ReadLine();
-
-            // Validate input is not null, and matches the pattern
-            if (op == null || !Regex.IsMatch(op, "^[asmd]$"))
+            if (op == 'E')
             {
-                Console.WriteLine("Error: Unrecognized input.");
+                helpers.PrintExitMessage();
+                break;
             }
-            else
+
+            if (op == 'H')
             {
-                try
+                helpers.PrintHistory(history, calculator.usageCount);
+                continue;
+            }
+
+            if (op == 'X')
+            {
+                history.Clear();
+                Console.WriteLine("History cleared.\n");
+                continue;
+            }
+
+            try
+            {
+                double result = calculator.DoOperation(cleanNum1, cleanNum2, op);
+
+                if (double.IsNaN(result))
                 {
-                    result = calculator.DoOperation(cleanNum1, cleanNum2, op);
-                    if (double.IsNaN(result))
+                    Console.WriteLine("This operation will result in a mathematical error.\n");
+                }
+                else
+                {
+
+                    resultPrinter.PrintResult(cleanNum1, cleanNum2, result, op);
+
+                    string operationName = op switch
                     {
-                        Console.WriteLine("This operation will result in a mathematical error.\n");
-                    }
-                    else Console.WriteLine("Your result: {0:0.##}\n", result);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Oh no! An exception occurred trying to do the math.\n - Details: " + e.Message);
+                        'A' => "+",
+                        'S' => "-",
+                        'M' => "*",
+                        'D' => "/",
+                        _ => "?"
+                    };
+                    history.Add($"{calculator.usageCount}: {cleanNum1} {operationName} {cleanNum2} = {result}");
+
+                    helpers.PrintHistory(history, calculator.usageCount);
                 }
             }
-            Console.WriteLine(new string('-', 24));
+            catch (Exception ex)
+            {
+                helpers.PrintError($"Oh no! An exception occurred trying to do the math.\n - Details: {ex.Message}");
+            }
 
             Console.Write("Press 'n' and Enter to close the app, or press any other key and Enter to continue: ");
-            if (Console.ReadLine() == "n") endApp = true;
+            string? userInput = Console.ReadLine()?.Trim().ToLower();
+            if (userInput == "n")
+            {
+                helpers.PrintExitMessage();
+                helpers.PrintFooter();
+                break;
+            }
+            Console.Clear();
 
-            Console.WriteLine("\n");
         }
         calculator.Close();
-        return;
     }
 }
