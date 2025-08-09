@@ -1,0 +1,14 @@
+{
+  "Operations": [
+    {
+      "Operand1": 5.0,
+      "Operand2": 5.0,
+      "Operation": "Subtract",
+      "Result": 0.0
+    },
+    {
+      "Operand1": 8.0,
+      "Operand2": 0.0,
+      "Operation": "Divide",
+      "Result": "NaN"
+    }
